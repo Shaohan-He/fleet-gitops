@@ -1,0 +1,77 @@
+# Fleet Canary AnalysisTemplate
+# ★ 核心亮点: 金丝雀健康检查调用自己写的 NHW 巡检系统
+#
+# 四项分析指标覆盖三个层次:
+#   1. NHW 节点健康分 — 基础设施层 (web metric → 自己写的巡检系统)
+#   2. 游戏服分配成功率 — 应用层 (Prometheus metric)
+#   3. 分配延迟 P99 — 用户体感层 (Prometheus metric)
+#   4. 熔断器状态 — 控制层 (Prometheus metric)
+
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: fleet-canary-health
+  namespace: argocd
+spec:
+  args:
+    - name: fleet-name
+      value: "battle-royale-fleet"
+    - name: nhw-endpoint
+      value: "http://node-health-watcher.nhw-system.svc.cluster.local:8080"
+    - name: prometheus-endpoint
+      value: "http://prometheus.monitoring.svc.cluster.local:9090"
+
+  metrics:
+    # ── 指标 1: NHW 节点健康状态 ──
+    # ★ 这是整个平台最有价值的设计 —— 自己写的巡检系统成了
+    #    金丝雀发布的判定标准
+    - name: node-health-score
+      provider:
+        web:
+          url: "{{ args.nhw-endpoint }}/api/v1/node-health"
+          timeoutSeconds: 10
+          jsonPath: "{$.summary.healthy_ratio}"
+      successCondition: "result >= 0.8"
+      failureLimit: 2          # 连续 2 次失败才判定 (防止短暂波动)
+      failureCondition: "result < 0.6"
+      interval: 30s
+
+    # ── 指标 2: 游戏服分配成功率 ──
+    # 核心业务指标 —— 分配失败 = 玩家进不去游戏
+    - name: allocation-success-rate
+      interval: 30s
+      failureLimit: 2
+      successCondition: "result >= 0.99"
+      provider:
+        prometheus:
+          address: "{{ args.prometheus-endpoint }}"
+          query: |
+            sum(rate(gfd_allocation_total{phase="Allocated"}[5m]))
+            /
+            sum(rate(gfd_allocation_total{}[5m]))
+
+    # ── 指标 3: 分配延迟 P99 ──
+    # 用户体验指标 —— P99 < 2s 保证 99% 的玩家等待不超过 2 秒
+    - name: allocation-latency-p99
+      interval: 30s
+      failureLimit: 3          # 延迟可以多给一次机会 (允许 GC pause)
+      successCondition: "result < 2.0"
+      provider:
+        prometheus:
+          address: "{{ args.prometheus-endpoint }}"
+          query: |
+            histogram_quantile(0.99,
+              sum(rate(gfd_allocation_latency_seconds_bucket[5m])) by (le))
+
+    # ── 指标 4: 扩缩容熔断器 ──
+    # 控制层健康 —— 熔断器触发了说明 Scaler 出问题，不应该继续放量
+    - name: scaling-circuit-breaker
+      interval: 30s
+      failureLimit: 1          # 熔断器 = 严重问题，1 次就判定
+      successCondition: "result == 0"
+      failureCondition: "result >= 1"
+      provider:
+        prometheus:
+          address: "{{ args.prometheus-endpoint }}"
+          query: |
+            sum(gfd_circuit_breaker_triggered)

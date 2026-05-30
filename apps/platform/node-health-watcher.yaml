@@ -1,0 +1,34 @@
+# ArgoCD Application — Node Health Watcher
+# 指向 node-health-watcher 仓库的 deploy/ 目录
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: node-health-watcher
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/290298661-pixel/node-health-watcher.git
+    targetRevision: master
+    path: deploy/
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nhw-system
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

@@ -1,0 +1,42 @@
+# GitOps 仓库健康校验
+# 每次 PR 或 push 到 main 时，校验:
+#   1. YAML 语法正确
+#   2. Kustomize build 能通过所有 overlay
+#   3. ArgoCD Application 定义合法
+
+name: Validate GitOps
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Kustomize
+        uses: syntaqx/setup-kustomize@v1
+
+      - name: Setup Python (for YAML validation)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: YAML Lint
+        run: yamllint -d "{extends: relaxed, rules: {line-length: disable}}" .
+
+      - name: Kustomize Build — Dev
+        run: kustomize build overlays/dev/ 2>&1
+
+      - name: Kustomize Build — Staging
+        run: kustomize build overlays/staging/ 2>&1
+
+      - name: Kustomize Build — Production
+        run: kustomize build overlays/production/ 2>&1

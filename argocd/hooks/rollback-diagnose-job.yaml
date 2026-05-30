@@ -1,0 +1,75 @@
+# 回滚后自动诊断 Job
+# 当金丝雀发布失败自动回滚后，立即运行 Node Guardian 诊断工具
+# 收集故障现场证据，避免"事后复盘时不知道当时发生了什么"
+#
+# 触发方式:
+#   1. Argo Rollouts hook (rollback step)
+#   2. 手动: kubectl create job rollback-diagnose --from=cronjob/rollback-diagnose
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rollback-diagnose
+  namespace: game-fleet-system
+  labels:
+    app: rollback-diagnose
+    triggered-by: canary-rollback
+spec:
+  ttlSecondsAfterFinished: 600   # 10 分钟后自动清理 (保留日志作审计)
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: rollback-diagnose
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: diagnose
+          image: ghcr.io/290298661-pixel/node-guardian:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+              TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+              echo "=== 回滚后自动诊断 — $TIMESTAMP ==="
+
+              # 1. 节点负载快照
+              echo ""
+              echo "## 1. 节点负载快照"
+              kn-diagnose --minutes 10 --top 5 --json 2>/dev/null || \
+                echo "kn-diagnose 不可用，跳过"
+
+              # 2. 最近 K8s Events
+              echo ""
+              echo "## 2. 最近 K8s Events (Warning)"
+              kubectl get events --all-namespaces \
+                --field-selector type=Warning \
+                --sort-by='.lastTimestamp' 2>/dev/null | tail -20 || \
+                echo "kubectl 不可用，跳过"
+
+              # 3. NHW 节点健康状态
+              echo ""
+              echo "## 3. NHW 节点健康状态"
+              curl -s --max-time 5 \
+                http://node-health-watcher.nhw-system:8080/api/v1/node-health 2>/dev/null || \
+                echo "NHW API 不可用，跳过"
+
+              # 4. GFD 舰队状态
+              echo ""
+              echo "## 4. GFD 舰队状态"
+              kubectl get fleets -A -o json 2>/dev/null || \
+                echo "Fleet CRD 不可用，跳过"
+
+              # 5. 汇总
+              echo ""
+              echo "=== 诊断完成 $TIMESTAMP ==="
+
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi

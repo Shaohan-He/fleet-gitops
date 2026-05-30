@@ -1,0 +1,46 @@
+# Fleet GitOps — Root Application (App of Apps)
+# 一个 kubectl apply 部署整个平台
+#
+# 用法:
+#   kubectl apply -f bootstrap/root-app.yaml
+#   argocd app sync root-app
+#
+# ArgoCD 会递归扫描 apps/ 目录，自动发现并管理所有子 Application
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-app
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/290298661-pixel/fleet-gitops.git
+    targetRevision: main
+    path: apps/
+
+    # 递归扫描，自动发现 apps/platform/ 和 apps/monitoring/ 下的所有子 Application
+    directory:
+      recurse: true
+      exclude: "*.md"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+
+  syncPolicy:
+    automated:
+      prune: true      # 删除 Git 中已移除的资源
+      selfHeal: true   # 手动修改集群会在 3 分钟后自动回退
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
