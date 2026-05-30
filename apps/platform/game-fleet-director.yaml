@@ -13,7 +13,7 @@ spec:
 
   source:
     repoURL: https://github.com/290298661-pixel/game-server-orchestrator.git
-    targetRevision: master
+    targetRevision: main
     path: deploy/
 
   destination:
