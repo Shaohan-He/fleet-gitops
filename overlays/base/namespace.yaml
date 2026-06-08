@@ -1,0 +1,23 @@
+# 三部曲命名空间
+# 所有环境共享同一套 namespace 命名，保证 Service DNS 一致
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nhw-system
+  labels:
+    app.kubernetes.io/name: node-health-watcher
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: node-guardian-system
+  labels:
+    app.kubernetes.io/name: node-guardian
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: game-fleet-system
+  labels:
+    app.kubernetes.io/name: game-fleet-director

@@ -1,0 +1,26 @@
+# Production patch: 三副本 + info 日志 + 完整三阶段金丝雀
+# target: 所有 Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: placeholder   # 会被 target selector 匹配后替换
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+        - name: app
+          env:
+            - name: LOG_LEVEL
+              value: info
+            - name: CANARY_ENABLED
+              value: "true"
+            - name: CANARY_STEPS
+              value: "20,50,100"   # prod: 完整三阶段金丝雀
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi

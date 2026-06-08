@@ -1,0 +1,28 @@
+# Staging patch: 简化金丝雀 — 3 项检查 + 放宽阈值
+# target: AnalysisTemplate/fleet-canary-health
+#
+# staging 不做全量 4 项检查: 去掉分配延迟 P99 (staging 流量低，延迟抖动大)
+# 成功率阈值从 99% 降到 95% (staging 样本小)
+#
+# 对应 ARCHITECTURE.md: "staging — 简化 Analysis"
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: fleet-canary-health
+spec:
+  metrics:
+    - name: node-health-score
+      successCondition: "result >= 0.7"    # 比 prod 的 0.8 放宽
+      failureLimit: 2
+      failureCondition: "result < 0.5"
+      interval: 30s
+    - name: allocation-success-rate
+      successCondition: "result >= 0.95"   # 比 prod 的 0.99 放宽
+      failureLimit: 2
+      interval: 30s
+    - name: allocation-latency-p99
+      successCondition: "result < 5.0"     # 比 prod 的 2s 放宽
+      failureLimit: 3
+      interval: 30s
+    # staging 去掉熔断器检查 —— 流量太低，熔断器数据无意义
+    # - name: scaling-circuit-breaker (removed for staging)

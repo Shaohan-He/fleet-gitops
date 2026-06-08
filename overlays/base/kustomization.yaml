@@ -1,0 +1,16 @@
+# Base: 三部曲共享的 K8s 资源定义
+# 所有环境 (dev/staging/production) 都继承这里的资源，
+# 通过 overlay patch 实现差异化
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+
+# 公共标签 — 所有资源自动注入
+labels:
+  - includeSelectors: true
+    pairs:
+      app.kubernetes.io/managed-by: argocd
+      app.kubernetes.io/part-of: fleet-gitops

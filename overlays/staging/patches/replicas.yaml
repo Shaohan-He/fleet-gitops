@@ -1,0 +1,19 @@
+# Staging patch: 双副本 + info 日志 + 简化金丝雀
+# target: 所有 Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: placeholder   # 会被 target selector 匹配后替换
+spec:
+  replicas: 2
+  template:
+    spec:
+      containers:
+        - name: app
+          env:
+            - name: LOG_LEVEL
+              value: info
+            - name: CANARY_ENABLED
+              value: "true"
+            - name: CANARY_STEPS
+              value: "50,100"   # staging: 只做 50%→100% 两步

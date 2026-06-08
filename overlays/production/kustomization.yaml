@@ -1,0 +1,35 @@
+# Production 环境 — 完整副本 + 三阶段金丝雀 (20% → 50% → 100%)
+#
+# ★ 这是唯一真正跑完整金丝雀的环境
+# autoPromotionEnabled: false = 每步 Analysis 通过后需人工确认
+#
+# 使用:
+#   kustomize build overlays/production/ | kubectl apply -f -
+#   kustomize edit set image ghcr.io/290298661-pixel/gfd=ghcr.io/290298661-pixel/gfd:v0.2.0
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../base
+
+images:
+  - name: ghcr.io/290298661-pixel/node-health-watcher
+    newTag: latest
+  - name: ghcr.io/290298661-pixel/node-guardian
+    newTag: latest
+  - name: ghcr.io/290298661-pixel/game-fleet-director-controller
+    newTag: latest
+  - name: ghcr.io/290298661-pixel/game-fleet-director-apiserver
+    newTag: latest
+
+patches:
+  # ── 副本数: 3+ (高可用) ──
+  - path: patches/replicas.yaml
+    target:
+      kind: Deployment
+  # ── 完整 Analysis: 4 项全量检查 + 严格阈值 ──
+  - path: patches/analysis.yaml
+    target:
+      kind: AnalysisTemplate
+      name: fleet-canary-health

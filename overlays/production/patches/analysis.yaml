@@ -1,0 +1,42 @@
+# Production patch: 完整金丝雀 — 4 项全量检查 + 严格阈值
+# target: AnalysisTemplate/fleet-canary-health
+#
+# 四项指标覆盖三层:
+#   1. 基础设施层 — NHW 节点健康分 ≥ 80%
+#   2. 应用层 — 分配成功率 ≥ 99% + 分配延迟 P99 < 2s
+#   3. 控制层 — 熔断器未触发
+#
+# autoPromotionEnabled: false (需人工确认每步)
+# 对应 ARCHITECTURE.md: "production — 完整 Analysis"
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: fleet-canary-health
+spec:
+  metrics:
+    # ── 指标 1: NHW 节点健康状态 ──
+    # 节点层面故障前兆检测 (conntrack, 磁盘, kubelet)
+    - name: node-health-score
+      interval: 30s
+      failureLimit: 2
+      successCondition: "result >= 0.8"
+      failureCondition: "result < 0.6"
+    # ── 指标 2: 游戏服分配成功率 ──
+    # 核心业务指标 — 分配失败 = 玩家进不去游戏
+    - name: allocation-success-rate
+      interval: 30s
+      failureLimit: 2
+      successCondition: "result >= 0.99"
+    # ── 指标 3: 分配延迟 P99 ──
+    # 用户体验指标 — P99 < 2s
+    - name: allocation-latency-p99
+      interval: 30s
+      failureLimit: 3
+      successCondition: "result < 2.0"
+    # ── 指标 4: 扩缩容熔断器 ──
+    # 控制层健康 — 熔断器触发 = Scaler 出问题
+    - name: scaling-circuit-breaker
+      interval: 30s
+      failureLimit: 1
+      successCondition: "result == 0"
+      failureCondition: "result >= 1"

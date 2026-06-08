@@ -1,0 +1,33 @@
+# Dev 环境 — 追求速度，无金丝雀，直接滚动更新
+#
+# 使用:
+#   kustomize build overlays/dev/ | kubectl apply -f -
+#   kustomize edit set image ghcr.io/290298661-pixel/gfd=ghcr.io/290298661-pixel/gfd:a3f2b1c
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../base
+
+# Dev 环境的镜像占位 — CI 用 kustomize edit set image 更新
+images:
+  - name: ghcr.io/290298661-pixel/node-health-watcher
+    newTag: latest
+  - name: ghcr.io/290298661-pixel/node-guardian
+    newTag: latest
+  - name: ghcr.io/290298661-pixel/game-fleet-director-controller
+    newTag: latest
+  - name: ghcr.io/290298661-pixel/game-fleet-director-apiserver
+    newTag: latest
+
+patches:
+  # ── 副本数: 1 (dev 不需要高可用) ──
+  - path: patches/replicas.yaml
+    target:
+      kind: Deployment
+  # ── 跳过 Analysis (dev 不跑金丝雀) ──
+  - path: patches/analysis.yaml
+    target:
+      kind: AnalysisTemplate
+      name: fleet-canary-health
