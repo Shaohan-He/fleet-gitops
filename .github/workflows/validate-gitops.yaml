@@ -30,7 +30,8 @@ jobs:
         run: pip install yamllint
 
       - name: YAML Lint
-        run: yamllint -d "{extends: relaxed, rules: {line-length: disable}}" .
+        run: |
+          yamllint -d "{extends: relaxed, rules: {line-length: disable}}" .
 
       - name: Kustomize Build — Dev
         run: kustomize build overlays/dev/ 2>&1
