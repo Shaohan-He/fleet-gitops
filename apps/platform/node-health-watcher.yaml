@@ -12,7 +12,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/290298661-pixel/node-health-watcher.git
+    repoURL: https://github.com/Shaohan-He/node-health-watcher.git
     targetRevision: main
     path: deploy/
 

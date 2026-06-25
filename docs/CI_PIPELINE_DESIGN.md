@@ -35,7 +35,7 @@
 │         │ ✅                                          │
 │         ▼                                             │
 │  ┌──────────────┐                                    │
-│  │  Push to GHCR │  ← ghcr.io/290298661-pixel/<repo> │
+│  │  Push to GHCR │  ← ghcr.io/Shaohan-He/<repo> │
 │  └──────┬───────┘                                    │
 │         │                                             │
 │         ▼                                             │
@@ -126,7 +126,7 @@ jobs:
         env:
           GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
         run: |
-          git clone https://x-access-token:${GITOPS_TOKEN}@github.com/290298661-pixel/fleet-gitops.git
+          git clone https://x-access-token:${GITOPS_TOKEN}@github.com/Shaohan-He/fleet-gitops.git
           cd fleet-gitops
           cd overlays/production
           kustomize edit set image \
@@ -209,7 +209,7 @@ jobs:
         env:
           GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
         run: |
-          git clone https://x-access-token:${GITOPS_TOKEN}@github.com/290298661-pixel/fleet-gitops.git
+          git clone https://x-access-token:${GITOPS_TOKEN}@github.com/Shaohan-He/fleet-gitops.git
           cd fleet-gitops/overlays/production
           kustomize edit set image \
             $REGISTRY/$IMAGE_NAME=$REGISTRY/$IMAGE_NAME:${{ steps.meta.outputs.tag }}
@@ -288,7 +288,7 @@ jobs:
         env:
           GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
         run: |
-          git clone https://x-access-token:${GITOPS_TOKEN}@github.com/290298661-pixel/fleet-gitops.git
+          git clone https://x-access-token:${GITOPS_TOKEN}@github.com/Shaohan-He/fleet-gitops.git
           cd fleet-gitops/overlays/production
           kustomize edit set image \
             $REGISTRY/$IMAGE_NAME=$REGISTRY/$IMAGE_NAME:${{ steps.meta.outputs.tag }}
@@ -311,7 +311,7 @@ jobs:
 ## 镜像仓库设计
 
 ```
-ghcr.io/290298661-pixel/
+ghcr.io/Shaohan-He/
 ├── node-health-watcher:latest
 ├── node-health-watcher:v0.1.0
 ├── node-health-watcher:a3f2b1c

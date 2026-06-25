@@ -12,7 +12,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/290298661-pixel/game-server-orchestrator.git
+    repoURL: https://github.com/Shaohan-He/game-server-orchestrator.git
     targetRevision: main
     path: deploy/
 

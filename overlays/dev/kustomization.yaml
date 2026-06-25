@@ -2,7 +2,7 @@
 #
 # 使用:
 #   kustomize build overlays/dev/ | kubectl apply -f -
-#   kustomize edit set image ghcr.io/290298661-pixel/gfd=ghcr.io/290298661-pixel/gfd:a3f2b1c
+#   kustomize edit set image ghcr.io/Shaohan-He/gfd=ghcr.io/Shaohan-He/gfd:a3f2b1c
 
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -12,13 +12,13 @@ resources:
 
 # Dev 环境的镜像占位 — CI 用 kustomize edit set image 更新
 images:
-  - name: ghcr.io/290298661-pixel/node-health-watcher
+  - name: ghcr.io/Shaohan-He/node-health-watcher
     newTag: latest
-  - name: ghcr.io/290298661-pixel/node-guardian
+  - name: ghcr.io/Shaohan-He/node-guardian
     newTag: latest
-  - name: ghcr.io/290298661-pixel/game-fleet-director-controller
+  - name: ghcr.io/Shaohan-He/game-fleet-director-controller
     newTag: latest
-  - name: ghcr.io/290298661-pixel/game-fleet-director-apiserver
+  - name: ghcr.io/Shaohan-He/game-fleet-director-apiserver
     newTag: latest
 
 patches:

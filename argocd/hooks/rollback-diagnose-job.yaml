@@ -25,7 +25,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: diagnose
-          image: ghcr.io/290298661-pixel/node-guardian:latest
+          image: ghcr.io/Shaohan-He/node-guardian:latest
           command:
             - /bin/bash
             - -c

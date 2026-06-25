@@ -319,7 +319,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/290298661-pixel/fleet-gitops.git
+    repoURL: https://github.com/Shaohan-He/fleet-gitops.git
     targetRevision: main
     path: apps/
     directory:
