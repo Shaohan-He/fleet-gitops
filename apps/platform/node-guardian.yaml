@@ -12,7 +12,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/290298661-pixel/node-guardian.git
+    repoURL: https://github.com/Shaohan-He/node-guardian.git
     targetRevision: main
     path: deploy/
 

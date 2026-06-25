@@ -2,7 +2,7 @@
 
 > Kubernetes GitOps delivery repository based on Argo CD, Argo Rollouts, and Kustomize.
 
-[![Status](https://img.shields.io/badge/status-developing-yellow)](https://github.com/290298661-pixel/fleet-gitops)
+[![Status](https://img.shields.io/badge/status-developing-yellow)](https://github.com/Shaohan-He/fleet-gitops)
 [![ArgoCD](https://img.shields.io/badge/ArgoCD-v3.4.3-EF7B4D)](https://argoproj.github.io/cd/)
 [![K8s](https://img.shields.io/badge/K8s-v1.35-326CE5)](https://kubernetes.io/)
 
@@ -145,10 +145,10 @@ kubectl apply --dry-run=client -f bootstrap/root-app.yaml
 
 | 仓库 | 关系 |
 | --- | --- |
-| [fleet-observability](https://github.com/290298661-pixel/fleet-observability) | 可观测性配置与仪表盘 |
-| [node-health-watcher](https://github.com/290298661-pixel/node-health-watcher) | 节点巡检与告警 |
-| [node-guardian](https://github.com/290298661-pixel/node-guardian) | 节点诊断与维护工具 |
-| [k8s-healing-agent](https://github.com/290298661-pixel/k8s-healing-agent) | 告警驱动的 Kubernetes 修复实验项目 |
+| [fleet-observability](https://github.com/Shaohan-He/fleet-observability) | 可观测性配置与仪表盘 |
+| [node-health-watcher](https://github.com/Shaohan-He/node-health-watcher) | 节点巡检与告警 |
+| [node-guardian](https://github.com/Shaohan-He/node-guardian) | 节点诊断与维护工具 |
+| [k8s-healing-agent](https://github.com/Shaohan-He/k8s-healing-agent) | 告警驱动的 Kubernetes 修复实验项目 |
 
 ## License
 

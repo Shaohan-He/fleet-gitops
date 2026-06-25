@@ -51,7 +51,7 @@ spec:
       serviceAccountName: gfd-apiserver
       containers:
         - name: apiserver
-          image: ghcr.io/290298661-pixel/game-fleet-director-apiserver:latest
+          image: ghcr.io/Shaohan-He/game-fleet-director-apiserver:latest
           ports:
             - containerPort: 8080
               name: http
@@ -162,7 +162,7 @@ spec:
       serviceAccountName: gfd-controller
       containers:
         - name: controller
-          image: ghcr.io/290298661-pixel/game-fleet-director-controller:latest
+          image: ghcr.io/Shaohan-He/game-fleet-director-controller:latest
           ports:
             - containerPort: 9090
               name: metrics

@@ -5,7 +5,7 @@
 #
 # 使用:
 #   kustomize build overlays/production/ | kubectl apply -f -
-#   kustomize edit set image ghcr.io/290298661-pixel/gfd=ghcr.io/290298661-pixel/gfd:v0.2.0
+#   kustomize edit set image ghcr.io/Shaohan-He/gfd=ghcr.io/Shaohan-He/gfd:v0.2.0
 
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -14,13 +14,13 @@ resources:
   - ../base
 
 images:
-  - name: ghcr.io/290298661-pixel/node-health-watcher
+  - name: ghcr.io/Shaohan-He/node-health-watcher
     newTag: latest
-  - name: ghcr.io/290298661-pixel/node-guardian
+  - name: ghcr.io/Shaohan-He/node-guardian
     newTag: latest
-  - name: ghcr.io/290298661-pixel/game-fleet-director-controller
+  - name: ghcr.io/Shaohan-He/game-fleet-director-controller
     newTag: latest
-  - name: ghcr.io/290298661-pixel/game-fleet-director-apiserver
+  - name: ghcr.io/Shaohan-He/game-fleet-director-apiserver
     newTag: latest
 
 patches:
